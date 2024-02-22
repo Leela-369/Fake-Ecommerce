@@ -3,14 +3,11 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-
 export const ProductComponent = () => {
   const products = useSelector((state) => state.allProducts.products);
-  const [showFilters, setShowFilters] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
 
-  // Filter the products based on category and price
   const filteredProducts = products.filter((product) => {
     if (categoryFilter === "all" && priceFilter === "all") {
       return true;
@@ -22,48 +19,50 @@ export const ProductComponent = () => {
       return product.price <= parseInt(priceFilter);
     }
     return (
-      product.category === categoryFilter && product.price <= parseInt(priceFilter)
+      product.category === categoryFilter &&
+      product.price <= parseInt(priceFilter)
     );
   });
 
-  // Get unique categories from the products
-  const categories = Array.from(
-    new Set(products.map((product) => product.category))
-  );
+  const categories = ["All", "Men's Clothing", "Jewelry", "Electronics", "Women's Clothing"];
+  const prices = ["All", "10", "20", "30"];
 
-  const handleFilterClick = () => {
-    setShowFilters(!showFilters);
+  const handleCategoryChange = (category) => {
+    setCategoryFilter(category);
+  };
+
+  const handlePriceChange = (price) => {
+    setPriceFilter(price);
   };
 
   return (
-    <div>
-      <FilterButton onClick={handleFilterClick}>Filter</FilterButton>
-      {showFilters && (
+    <Container>
+      <Sidebar>
         <FilterContainer>
           <FilterLabel>Category:</FilterLabel>
-          <FilterSelect
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </FilterSelect>
+          {categories.map((category) => (
+            <CategoryLabel key={category}>
+              <CategoryCheckbox
+                value={category}
+                checked={categoryFilter === category}
+                onChange={() => handleCategoryChange(category)}
+              />
+              {category}
+            </CategoryLabel>
+          ))}
           <FilterLabel>Price:</FilterLabel>
-          <FilterSelect
-            value={priceFilter}
-            onChange={(e) => setPriceFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="10">10$</option>
-            <option value="20">20$</option>
-            <option value="30">30$</option>
-          </FilterSelect>
+          {prices.map((price) => (
+            <CategoryLabel key={price}>
+              <CategoryCheckbox
+                value={price}
+                checked={priceFilter === price}
+                onChange={() => handlePriceChange(price)}
+              />
+              {price === "All" ? "All" : `${price}$`}
+            </CategoryLabel>
+          ))}
         </FilterContainer>
-      )}
+      </Sidebar>
       <ProductContainer>
         {filteredProducts.map((product) => (
           <ProductCard key={product.id}>
@@ -78,22 +77,26 @@ export const ProductComponent = () => {
           </ProductCard>
         ))}
       </ProductContainer>
-    </div>
+    </Container>
   );
 };
 
-const FilterButton = styled.button`
-  background-color: #ffffff;
-  border: 1px solid #cccccc;
-  padding: 5px 10px;
-  cursor: pointer;
-  width: 100%;
+const Container = styled.div`
+  display: flex;
+`;
+
+const Sidebar = styled.div`
+  width: 500px;
+  padding: 10px;
+  height: 500px;
+  position: relative;
+  background-color: #f0f0f0;
 `;
 
 const FilterContainer = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: center;
   margin-bottom: 20px;
 `;
 
@@ -101,10 +104,21 @@ const FilterLabel = styled.label`
   margin-right: 15px;
 `;
 
-const FilterSelect = styled.select`
-  padding: 5px;
-  border-radius: 4px;
+const CategoryCheckbox = styled.input.attrs({ type: "checkbox" })`
+  margin-right: 5px;
 `;
+
+const CategoryLabel = styled.label`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+`;
+
+// const FilterSelect = styled.select`
+//   padding: 5px;
+//   border-radius: 4px;
+// `;
 
 const ProductContainer = styled.div`
   display: grid;
@@ -130,8 +144,8 @@ const ProductCard = styled.div`
 
 const ProductImage = styled.img`
   width: 100%;
-  height: 200px; /* Adjust the height as needed */
-  object-fit: contain; /* Ensure the image fits within the container without distortion */
+  height: 200px;
+  object-fit: contain;
 `;
 
 const ProductContent = styled.div`
@@ -161,5 +175,3 @@ const CustomLink = styled(Link)`
     text-decoration: none;
   }
 `;
-
-export default ProductComponent;
